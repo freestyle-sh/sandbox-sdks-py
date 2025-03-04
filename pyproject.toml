@@ -1,5 +1,8 @@
 [project]
 name = "freestyle"
-version = "0.0.1"
+# PyPi version
+# version = "0.0.1"
+# TestPyPi version
+version = "0.0.12"
 requires-python = ">= 3.8"
 readme = "README.md"

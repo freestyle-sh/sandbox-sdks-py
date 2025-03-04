@@ -8,7 +8,7 @@ mkdir -p tmp
 openapi-generator-cli generate -i openapi.json -g python -o tmp  --skip-validate-spec
 
 # copy from tmp/freestyle_sandboxes_client to src/openapi
-rm -rf src/openapi
+rm -rf src/_openapi_client
 cp -r tmp/openapi_client src/_openapi_client
 
 # rename everything from openapi_client to _openapi_client in the generated code

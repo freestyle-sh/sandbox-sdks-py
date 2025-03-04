@@ -2,3 +2,4 @@ dist
 freestyle.egg-info
 .env
 src/_openapi_client
+build
