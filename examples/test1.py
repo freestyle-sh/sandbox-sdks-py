@@ -1,11 +1,10 @@
 import freestyle
-
+import os
 from freestyle.pipecat import *
 
-
 client = freestyle.Freestyle(
-  "NuoZujN7MV6PF4qxw3kGDP-ENachqAf9jw56pJDysiY1squRxSzg9GMTqgUzehgsQti",
-  "http://localhost:8080"
+  os.environ.get("FREESTYLE_API_KEY"),
+  os.environ.get("FREESTYLE_API_BASE_URL")
 )
 
 print("API Key:", client.token)
@@ -17,24 +16,18 @@ try:
 
 
 export default async () => {
-  try {
-  const pyodide = await loadPyodide();
-
-
-
-  console.log(output);
-  } catch (e) {
-
-  console.error(e);
-    return e.toString();
-  }
-
-  return 0;
+  await loadPyodide()
+  return process.env.HELLO;
 };
   """,
-  {
-    "pyodide": "0.27.3"
-  }
+  freestyle.FreestyleExecuteScriptParamsConfiguration(
+    env_vars={
+      "HELLO": "WORLD"
+    },
+    node_modules={
+      "pyodide": "0.27.3"
+    }
+  )
   )
 
   print("VALUES", a)
