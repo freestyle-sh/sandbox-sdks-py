@@ -14,7 +14,7 @@ def executeTool(
     apiKey: str, params: FreestyleExecuteScriptParamsConfiguration = None
 ) -> Tuple[
     ChatCompletionToolParam,
-    Callable[[ChatCompletionMessage], ChatCompletionToolMessageParam | None],
+    Callable[[ChatCompletionMessage], list[ChatCompletionToolMessageParam] | None],
 ]:
     freestyle = Freestyle(apiKey)
 
