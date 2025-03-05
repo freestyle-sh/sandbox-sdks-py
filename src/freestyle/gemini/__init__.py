@@ -6,7 +6,6 @@ from google.genai import types
 
 # from google.genai import Content
 from freestyle import Freestyle
-import json
 
 
 def executeTool(

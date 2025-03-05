@@ -1,7 +1,10 @@
 import google.genai as genai
+from google.genai import types
+
 import os
 import freestyle.gemini
-from google.genai import types
+import freestyle.pipecat
+
 
 client = genai.Client(api_key=os.environ.get("GENERATIVEAI_API_KEY"))
 
