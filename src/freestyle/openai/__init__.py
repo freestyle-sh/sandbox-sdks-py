@@ -1,7 +1,6 @@
 from _openapi_client import FreestyleExecuteScriptParamsConfiguration
 from openai.types.chat import (
     ChatCompletionToolParam,
-    ChatCompletion,
     ChatCompletionToolMessageParam,
     ChatCompletionMessage,
 )
@@ -10,7 +9,7 @@ from typing import Callable, Tuple
 import json
 
 
-def executeTool(
+def execute_tool(
     apiKey: str, params: FreestyleExecuteScriptParamsConfiguration = None
 ) -> Tuple[
     ChatCompletionToolParam,
@@ -28,7 +27,7 @@ def executeTool(
             results = []
             for call in calls:
                 script = json.loads(call.function.arguments)["script"]
-                execution = freestyle.executeScript(script, params)
+                execution = freestyle.execute_script(script, params)
                 results.append(
                     ChatCompletionToolMessageParam(
                         content=execution.to_str(), role="tool", tool_call_id=call.id
@@ -38,10 +37,10 @@ def executeTool(
         else:
             return None
 
-    return executeToolDefinition(params), codeExecutor
+    return execute_tool_definition(params), codeExecutor
 
 
-def executeToolDefinition(
+def execute_tool_definition(
     params: FreestyleExecuteScriptParamsConfiguration = None,
 ) -> ChatCompletionToolParam:
     params = params or FreestyleExecuteScriptParamsConfiguration()

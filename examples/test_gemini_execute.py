@@ -10,7 +10,7 @@ client = genai.Client(api_key=os.environ.get("GENERATIVEAI_API_KEY"))
 
 
 # model = genai.client.com("gemini-2.0-flash")
-definition, runner = freestyle.gemini.executeTool(
+definition, runner = freestyle.gemini.execute_tool(
     os.environ.get("FREESTYLE_API_KEY"),
 )
 chat = client.chats.create(

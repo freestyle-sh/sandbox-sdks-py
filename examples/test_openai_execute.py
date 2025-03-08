@@ -7,7 +7,7 @@ client = openai.OpenAI(
 )
 
 
-(definition, runner) = freestyle.openai.executeTool(
+(definition, runner) = freestyle.openai.execute_tool(
     os.environ.get("FREESTYLE_API_KEY"),
 )
 

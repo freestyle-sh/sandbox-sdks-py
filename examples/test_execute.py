@@ -3,15 +3,14 @@ import os
 from freestyle.pipecat import *
 
 client = freestyle.Freestyle(
-  os.environ.get("FREESTYLE_API_KEY"),
-  os.environ.get("FREESTYLE_API_BASE_URL")
+    os.environ.get("FREESTYLE_API_KEY"), os.environ.get("FREESTYLE_API_BASE_URL")
 )
 
 print("API Key:", client.token)
 print("Base URL:", client.baseUrl)
 try:
-  a = client.executeScript(
-  """
+    a = client.execute_script(
+        """
   import { loadPyodide } from "pyodide";
 
 
@@ -20,16 +19,11 @@ export default async () => {
   return process.env.HELLO;
 };
   """,
-  freestyle.FreestyleExecuteScriptParamsConfiguration(
-    env_vars={
-      "HELLO": "WORLD"
-    },
-    node_modules={
-      "pyodide": "0.27.3"
-    }
-  )
-  )
+        freestyle.FreestyleExecuteScriptParamsConfiguration(
+            env_vars={"HELLO": "WORLD"}, node_modules={"pyodide": "0.27.3"}
+        ),
+    )
 
-  print("VALUES", a)
+    print("VALUES", a)
 except Exception as e:
-  print(e)
+    print(e)

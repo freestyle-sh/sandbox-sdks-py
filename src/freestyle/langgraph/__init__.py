@@ -6,13 +6,13 @@ from _openapi_client.models.freestyle_execute_script_params_configuration import
 from freestyle.client import Freestyle
 
 
-def executeTool(apiKey: str, params: FreestyleExecuteScriptParamsConfiguration = None):
+def execute_tool(apiKey: str, params: FreestyleExecuteScriptParamsConfiguration = None):
     freestyle = Freestyle(apiKey)
 
     @tool
-    def toolExecutor(
+    def tool_executor(
         script: str,
     ):
-        return freestyle.executeScript(script, params).to_json()
+        return freestyle.execute_script(script, params).to_json()
 
-    return toolExecutor
+    return tool_executor

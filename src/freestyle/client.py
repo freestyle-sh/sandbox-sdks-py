@@ -20,7 +20,7 @@ class Freestyle:
         client.set_default_header("Authorization", f"Bearer {self.token}")
         return client
 
-    def executeScript(
+    def execute_script(
         self, code: str, config: FreestyleExecuteScriptParamsConfiguration = None
     ):
         api = ExecuteApi(self._client())

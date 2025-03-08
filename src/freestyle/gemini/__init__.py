@@ -8,7 +8,7 @@ from google.genai import types
 from freestyle import Freestyle
 
 
-def executeTool(
+def execute_tool(
     apiKey: str, params: FreestyleExecuteScriptParamsConfiguration = None
 ) -> Tuple[types.Tool, Callable[[types.Content], None]]:
     freestyle = Freestyle(apiKey)
@@ -23,7 +23,7 @@ def executeTool(
             # freestyle.executeScript(
             #     json.loads(call.function_call.args)["script"], params
             # )
-            freestyle.executeScript(call.function_call.args["script"], params)
+            freestyle.execute_script(call.function_call.args["script"], params)
             for call in calls
         ]
 
@@ -43,10 +43,10 @@ def executeTool(
         #     for result, call in zip(results, calls)
         # ]
 
-    return (executeToolDefinition(params), codeExecutor)
+    return (execute_tool_definition(params), codeExecutor)
 
 
-def executeToolDefinition(
+def execute_tool_definition(
     params: FreestyleExecuteScriptParamsConfiguration = None,
 ) -> types.Tool:
     params = params or FreestyleExecuteScriptParamsConfiguration()
