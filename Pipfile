@@ -9,6 +9,7 @@ pipecat-ai = "*"
 google-genai = "*"
 langgraph = "*"
 langchain-core = "*"
+litellm = "*"
 
 [dev-packages]
 
