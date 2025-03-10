@@ -3,7 +3,6 @@ from google.genai import types
 
 import os
 import freestyle.gemini
-import freestyle.pipecat
 
 
 client = genai.Client(api_key=os.environ.get("GENERATIVEAI_API_KEY"))
