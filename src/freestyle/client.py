@@ -4,6 +4,10 @@ from _openapi_client import (
     FreestyleExecuteScriptParamsConfiguration,
     ExecuteApi,
     FreestyleExecuteScriptParams,
+    FreestyleDeployWebPayloadV2,
+    WebApi,
+    DeploymentSource,
+    FreestyleDeployWebConfiguration,
 )
 
 
@@ -26,4 +30,14 @@ class Freestyle:
         api = ExecuteApi(self._client())
         return api.handle_execute_script(
             FreestyleExecuteScriptParams(script=code, config=config)
+        )
+
+    def deploy_web(
+        self,
+        src: DeploymentSource,
+        config: FreestyleDeployWebConfiguration = None,
+    ):
+        api = WebApi(self._client())
+        return api.handle_deploy_web_v2(
+            FreestyleDeployWebPayloadV2(source=src, config=config)
         )
