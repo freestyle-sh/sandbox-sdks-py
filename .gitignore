@@ -4,3 +4,4 @@ freestyle.egg-info
 src/_openapi_client
 build
 notes
+__pycache__

@@ -9,7 +9,18 @@ from _openapi_client import (
     DeploymentSource,
     FreestyleDeployWebConfiguration,
     GitApi,
+    DevServer,
 )
+from _openapi_client.api.dev_servers_api import DevServersApi
+from _openapi_client.models.access_level import AccessLevel
+from _openapi_client.models.create_repo_source import CreateRepoSource
+from _openapi_client.models.handle_create_repo_request import HandleCreateRepoRequest
+from _openapi_client.models.revoke_git_token_request import RevokeGitTokenRequest
+from _openapi_client.models.update_permission_request import UpdatePermissionRequest
+from _openapi_client.models.dev_server_request import DevServerRequest
+from _openapi_client.models.dev_server_one_of import DevServerOneOf
+from .dev_server import FreestyleDevServer
+from typing import Dict, Optional
 
 
 class Freestyle:
@@ -29,6 +40,7 @@ class Freestyle:
         self, code: str, config: FreestyleExecuteScriptParamsConfiguration = None
     ):
         api = ExecuteApi(self._client())
+
         return api.handle_execute_script(
             FreestyleExecuteScriptParams(script=code, config=config)
         )
@@ -51,72 +63,134 @@ class Freestyle:
             limit=limit, offset=offset, include_managed=include_managed
         )
 
-    def cretate_git_identity(self):
+    def create_git_identity(self):
         api = GitApi(self._client())
         return api.handle_create_identity()
 
     def delete_git_identity(self, identity_id: str):
         api = GitApi(self._client())
-        return api.handle_delete_identity(identity_id)
+        return api.handle_delete_identity(identity=identity_id)
 
     def list_repository_permissions_for_identity(
         self, identity_id: str, limit: int = 100, offset: int = 0
     ):
         api = GitApi(self._client())
-        return api.handle_list_repository_permissions_by_identity(
-            identity_id=identity_id, limit=limit, offset=offset
+        return api.handle_list_permissions(
+            identity=identity_id, limit=limit, offset=offset
         )
 
     def grant_permission_to_identity(self, identity_id: str, repository_id: str):
         api = GitApi(self._client())
-        return api.handle_grant_permission_to_identity(
-            identity_id=identity_id, repository_id=repository_id
-        )
+        return api.handle_grant_permission(identity=identity_id, repo=repository_id)
 
     def revoke_permission_from_identity(self, identity_id: str, repository_id: str):
         api = GitApi(self._client())
-        return api.handle_revoke_permission_from_identity(
-            identity_id=identity_id, repository_id=repository_id
+        return api.handle_revoke_permission(
+            identity=identity_id,
+            repo=repository_id,
         )
 
     def update_permission_for_identity(
-        self, identity_id: str, repository_id: str, permission: str
+        self, identity_id: str, repository_id: str, permission: AccessLevel
     ):
         api = GitApi(self._client())
-        return api.handle_update_permission_for_identity(
-            identity_id=identity_id, repository_id=repository_id, permission=permission
+        return api.handle_update_permission(
+            identity=identity_id,
+            repo=repository_id,
+            update_permission_request=UpdatePermissionRequest(permission=permission),
         )
 
-    def list_access_tokens_for_identity(
-        self, identity_id: str, limit: int = 100, offset: int = 0
-    ):
+    def list_access_tokens_for_identity(self, identity_id: str):
         api = GitApi(self._client())
-        return api.handle_list_access_tokens_by_identity(
-            identity_id=identity_id, limit=limit, offset=offset
+        return api.handle_list_git_tokens(
+            identity=identity_id,
         )
 
-    def create_access_token_for_identity(
-        self, identity_id: str, name: str = "Unnamed Access Token", expires_in: int = 0
-    ):
+    def create_access_token_for_identity(self, identity_id: str):
         api = GitApi(self._client())
-        return api.handle_create_access_token_for_identity(
-            identity_id=identity_id, name=name, expires_in=expires_in
-        )
+        return api.handle_create_git_token(identity=identity_id)
 
     def revoke_access_token_for_identity(self, identity_id: str, access_token_id: str):
         api = GitApi(self._client())
-        return api.handle_revoke_access_token_for_identity(
-            identity_id=identity_id, access_token_id=access_token_id
+        # return api.handle_revoke_access_token_for_identity(
+        return api.handle_revoke_git_token(
+            identity=identity_id,
+            revoke_git_token_request=RevokeGitTokenRequest(tokenId=access_token_id),
         )
 
     def list_repositories(self, limit: int = 100, offset: int = 0):
         api = GitApi(self._client())
         return api.handle_list_repositories(limit=limit, offset=offset)
 
-    def create_repository(self, name: str = "Unnamed Repository", private: bool = True):
+    def create_repository(
+        self,
+        name: str = "Unnamed Repository",
+        private: bool = True,
+        source: Optional[CreateRepoSource] = None,
+    ):
         api = GitApi(self._client())
-        return api.handle_create_repository(name=name, private=private)
+        return api.handle_create_repo(
+            handle_create_repo_request=HandleCreateRepoRequest(
+                name=name, private=private, source=source
+            )
+        )
 
     def delete_repository(self, repository_id: str):
         api = GitApi(self._client())
-        return api.handle_delete_repository(repository_id=repository_id)
+        return api.handle_delete_repo(repo=repository_id)
+
+    def request_dev_server(
+        self,
+        repo_id: str,
+        base_id: Optional[str] = None,
+        dev_command: Optional[str] = None,
+        pre_dev_command_once: Optional[str] = None,
+        env_vars: Optional[Dict[str, str]] = None,
+        compute_class: Optional[str] = None,
+        timeout: Optional[int] = None,
+    ) -> FreestyleDevServer:
+        """
+        Request a dev server for a repository. If a dev server is already running
+        for that repository, it will return a url to that server. Dev servers are
+        ephemeral so you should call this function every time you need a url. Do
+        not store the url in your database!
+        """
+        client = self._client()
+        api = DevServersApi(client)
+
+        # Create DevServerRequest object
+        dev_server_request = DevServerRequest(
+            repo_id=repo_id,
+            base_id=base_id,
+            dev_command=dev_command,
+            pre_dev_command_once=pre_dev_command_once,
+            env_vars=env_vars,
+            compute_class=compute_class,
+            timeout=timeout,
+        )
+
+        # Make the API call
+        response = api.handle_ephemeral_dev_server(
+            dev_server_request=dev_server_request
+        )
+
+        # Create DevServer instance for subsequent operations
+        dev_server_one_of = DevServerOneOf(
+            repo_id=repo_id,
+            kind="repo",
+        )
+        dev_server_instance = DevServer(dev_server_one_of)
+
+        # Convert response to dict for FreestyleDevServer
+        response_data = {
+            "url": getattr(response, "url", ""),
+            "ephemeralUrl": getattr(response, "ephemeral_url", None),
+            "mcpEphemeralUrl": getattr(response, "mcp_ephemeral_url", None),
+            "isNew": getattr(response, "is_new", False),
+            "devCommandRunning": getattr(response, "dev_command_running", False),
+            "installCommandRunning": getattr(
+                response, "install_command_running", False
+            ),
+        }
+
+        return FreestyleDevServer(client, dev_server_instance, response_data)
