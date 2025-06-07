@@ -10,6 +10,7 @@ from _openapi_client import (
     FreestyleDeployWebConfiguration,
     GitApi,
     DevServer,
+    DomainsApi,
 )
 from _openapi_client.api.dev_servers_api import DevServersApi
 from _openapi_client.models.access_level import AccessLevel
@@ -19,6 +20,15 @@ from _openapi_client.models.revoke_git_token_request import RevokeGitTokenReques
 from _openapi_client.models.update_permission_request import UpdatePermissionRequest
 from _openapi_client.models.dev_server_request import DevServerRequest
 from _openapi_client.models.dev_server_one_of import DevServerOneOf
+from _openapi_client.models.freestyle_domain_verification_request import (
+    FreestyleDomainVerificationRequest,
+)
+from _openapi_client.models.freestyle_verify_domain_request import (
+    FreestyleVerifyDomainRequest,
+)
+from _openapi_client.models.freestyle_delete_domain_verification_request import (
+    FreestyleDeleteDomainVerificationRequest,
+)
 from .dev_server import FreestyleDevServer
 from typing import Dict, Optional
 
@@ -194,3 +204,59 @@ class Freestyle:
         }
 
         return FreestyleDevServer(client, dev_server_instance, response_data)
+
+    def create_domain_verification_request(self, domain: str):
+        """
+        Create a domain verification request. Returns a verification code that needs
+        to be placed in a TXT record at _freestyle_custom_hostname.thedomain.com
+        """
+        api = DomainsApi(self._client())
+        return api.handle_create_domain_verification(
+            freestyle_domain_verification_request=FreestyleDomainVerificationRequest(
+                domain=domain
+            )
+        )
+
+    def verify_domain(self, domain: str):
+        """
+        Verify a domain. Note, this requires the domain verification token to be
+        already set up in DNS as a TXT record.
+        """
+        api = DomainsApi(self._client())
+        return api.handle_verify_domain(
+            freestyle_verify_domain_request=FreestyleVerifyDomainRequest(domain=domain)
+        )
+
+    def list_domains(self):
+        """
+        List verified domains for the account, including *.style.dev domains
+        the account has claimed.
+        """
+        api = DomainsApi(self._client())
+        return api.handle_list_domains()
+
+    def list_domain_verification_requests(self):
+        """
+        List domain verification requests for the current account.
+        """
+        api = DomainsApi(self._client())
+        return api.handle_list_domain_verification_requests()
+
+    def delete_domain_verification_request(self, domain: str, verification_code: str):
+        """
+        Delete a domain verification request.
+        """
+        api = DomainsApi(self._client())
+        return api.handle_delete_domain_verification(
+            freestyle_delete_domain_verification_request=FreestyleDeleteDomainVerificationRequest(
+                domain=domain, verification_code=verification_code
+            )
+        )
+
+    def provision_wildcard(self, domain: str):
+        """
+        Provision a wildcard certificate for a verified domain. Requires adding
+        _acme-challenge.yourdomain.com NS dns.freestyle.sh to DNS.
+        """
+        api = DomainsApi(self._client())
+        return api.handle_verify_wildcard(domain=domain)
