@@ -5,7 +5,7 @@ mkdir -p tmp
 # openapi-python-client generate --path openapi.json --output-path src/openapi
 # copy the files into tmp dir
 
-openapi-generator-cli generate -i openapi.json -g python -o tmp  --skip-validate-spec
+openapi-generator-cli generate -i openapi.json -g python -o tmp --skip-validate-spec --openapi-normalizer REFACTOR_ALLOF_WITH_PROPERTIES_ONLY=true
 
 # copy from tmp/freestyle_sandboxes_client to src/openapi
 rm -rf src/_openapi_client
