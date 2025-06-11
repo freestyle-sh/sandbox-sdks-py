@@ -135,13 +135,13 @@ class Freestyle:
     def create_repository(
         self,
         name: str = "Unnamed Repository",
-        private: bool = True,
+        public: bool = True,
         source: Optional[CreateRepoSource] = None,
     ):
         api = GitApi(self._client())
         return api.handle_create_repo(
             handle_create_repo_request=HandleCreateRepoRequest(
-                name=name, private=private, source=source
+                name=name, public=public, source=source
             )
         )
 
