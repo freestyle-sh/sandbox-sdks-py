@@ -19,13 +19,13 @@ class FreestyleDevServerFilesystem:
     def ls(self, path: str = "") -> List[str]:
         """List files in the dev server directory."""
         # Workaround for OpenAPI client bug - manually construct request
-        
+
         # Get bearer token from the client's default headers
-        auth_header = self.client.default_headers.get('Authorization')
-        
+        auth_header = self.client.default_headers.get("Authorization")
+
         if not auth_header:
             raise ValueError("No authorization header found in client")
-        
+
         # Construct URL with filepath
         base_url = self.client.configuration.host
         # Try different URL constructions
@@ -35,14 +35,15 @@ class FreestyleDevServerFilesystem:
         else:
             # For other paths, encode properly
             from urllib.parse import quote
-            encoded_path = quote(path.lstrip('/'), safe='/')
+
+            encoded_path = quote(path.lstrip("/"), safe="/")
             url = f"{base_url}/ephemeral/v1/dev-servers/files/{encoded_path}"
         # Prepare request body
         request_body = {
             "devServer": self.dev_server_instance.actual_instance.to_dict(),
-            "encoding": "utf-8"
+            "encoding": "utf-8",
         }
-        
+
         # Make POST request
         response = requests.post(
             url,
@@ -50,19 +51,21 @@ class FreestyleDevServerFilesystem:
             headers={
                 "Authorization": auth_header,
                 "Content-Type": "application/json",
-                "Accept": "application/json"
-            }
+                "Accept": "application/json",
+            },
         )
-        
+
         if response.status_code != 200:
-            raise Exception(f"API request failed: {response.status_code} - {response.text}")
-        
+            raise Exception(
+                f"API request failed: {response.status_code} - {response.text}"
+            )
+
         data = response.json()
-        content = data.get('content', {})
-        
-        if content and content.get('kind') == 'directory':
-            return content.get('files', [])
-        elif content and content.get('kind') == 'file':
+        content = data.get("content", {})
+
+        if content and content.get("kind") == "directory":
+            return content.get("files", [])
+        elif content and content.get("kind") == "file":
             # If it's a file, return empty list for ls
             return []
         return []
@@ -70,23 +73,23 @@ class FreestyleDevServerFilesystem:
     def read_file(self, path: str, encoding: str = "utf-8") -> str:
         """Read a file from the dev server."""
         # Workaround for OpenAPI client bug - manually construct request
-        
+
         # Get bearer token from the client's default headers
-        auth_header = self.client.default_headers.get('Authorization')
-        
+        auth_header = self.client.default_headers.get("Authorization")
+
         if not auth_header:
             raise ValueError("No authorization header found in client")
-        
+
         # Construct URL with filepath
         base_url = self.client.configuration.host
         url = f"{base_url}/ephemeral/v1/dev-servers/files/{path.lstrip('/')}"
-        
+
         # Prepare request body
         request_body = {
             "devServer": self.dev_server_instance.actual_instance.to_dict(),
-            "encoding": encoding
+            "encoding": encoding,
         }
-        
+
         # Make POST request
         response = requests.post(
             url,
@@ -94,19 +97,21 @@ class FreestyleDevServerFilesystem:
             headers={
                 "Authorization": auth_header,
                 "Content-Type": "application/json",
-                "Accept": "application/json"
-            }
+                "Accept": "application/json",
+            },
         )
-        
+
         if response.status_code != 200:
-            raise Exception(f"API request failed: {response.status_code} - {response.text}")
-        
+            raise Exception(
+                f"API request failed: {response.status_code} - {response.text}"
+            )
+
         data = response.json()
-        content = data.get('content', {})
-        
-        if content and content.get('kind') == 'file':
-            return content.get('content', '')
-        
+        content = data.get("content", {})
+
+        if content and content.get("kind") == "file":
+            return content.get("content", "")
+
         raise FileNotFoundError(f"File not found or not a file: {path}")
 
     def write_file(
@@ -114,29 +119,29 @@ class FreestyleDevServerFilesystem:
     ) -> None:
         """Write a file to the dev server."""
         # Workaround for OpenAPI client bug - manually construct request
-        
+
         # Get bearer token from the client's default headers
-        auth_header = self.client.default_headers.get('Authorization')
-        
+        auth_header = self.client.default_headers.get("Authorization")
+
         if not auth_header:
             raise ValueError("No authorization header found in client")
-        
+
         # Convert content to string if needed
         content_str = content
         if isinstance(content, bytes):
             content_str = content.decode(encoding)
-        
+
         # Construct URL with filepath
         base_url = self.client.configuration.host
         url = f"{base_url}/ephemeral/v1/dev-servers/files/{path.lstrip('/')}"
-        
+
         # Prepare request body
         request_body = {
             "devServer": self.dev_server_instance.actual_instance.to_dict(),
             "content": content_str,
-            "encoding": encoding
+            "encoding": encoding,
         }
-        
+
         # Make PUT request
         response = requests.put(
             url,
@@ -144,12 +149,14 @@ class FreestyleDevServerFilesystem:
             headers={
                 "Authorization": auth_header,
                 "Content-Type": "application/json",
-                "Accept": "application/json"
-            }
+                "Accept": "application/json",
+            },
         )
-        
+
         if response.status_code != 200:
-            raise Exception(f"API request failed: {response.status_code} - {response.text}")
+            raise Exception(
+                f"API request failed: {response.status_code} - {response.text}"
+            )
 
 
 class FreestyleDevServerProcess:
@@ -202,9 +209,7 @@ class FreestyleDevServer:
         # Status flags
         self.is_new = response_data.get("isNew", False)
         self.dev_command_running = response_data.get("devCommandRunning", False)
-        self.install_command_running = response_data.get(
-            "installCommandRunning", False
-        )
+        self.install_command_running = response_data.get("installCommandRunning", False)
 
         # Filesystem and process interfaces
         self.fs = FreestyleDevServerFilesystem(client, dev_server_instance)
@@ -223,14 +228,13 @@ class FreestyleDevServer:
 
     def commit_and_push(self, message: str) -> None:
         """Commit and push changes to the dev server repository."""
-        from _openapi_client.api.git_api import GitApi
+        api = DevServersApi(self.client)
 
-        api = GitApi(self.client)
         api.handle_git_commit_push(
             git_commit_push_request=GitCommitPushRequest(
-                dev_server=self.dev_server_instance,
+                devServer=self.dev_server_instance,
                 message=message,
-            )
+            ),
         )
 
     def shutdown(self) -> Dict[str, Union[bool, str]]:
