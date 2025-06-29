@@ -15,6 +15,7 @@ from _openapi_client import (
 from _openapi_client.api.dev_servers_api import DevServersApi
 from _openapi_client.models.access_level import AccessLevel
 from _openapi_client.models.create_repo_source import CreateRepoSource
+from _openapi_client.models.grant_permission_request import GrantPermissionRequest
 from _openapi_client.models.handle_create_repo_request import HandleCreateRepoRequest
 from _openapi_client.models.revoke_git_token_request import RevokeGitTokenRequest
 from _openapi_client.models.update_permission_request import UpdatePermissionRequest
@@ -89,9 +90,17 @@ class Freestyle:
             identity=identity_id, limit=limit, offset=offset
         )
 
-    def grant_permission_to_identity(self, identity_id: str, repository_id: str):
+    def grant_permission_to_identity(
+        self, identity_id: str, repository_id: str, permission: AccessLevel
+    ):
         api = GitApi(self._client())
-        return api.handle_grant_permission(identity=identity_id, repo=repository_id)
+        return api.handle_grant_permission(
+            identity=identity_id,
+            repo=repository_id,
+            grant_permission_request=GrantPermissionRequest(
+                permission=permission,
+            ),
+        )
 
     def revoke_permission_from_identity(self, identity_id: str, repository_id: str):
         api = GitApi(self._client())
